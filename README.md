@@ -46,21 +46,6 @@ The main classes are:
 - ReservationNotFoundException: handles cancellation requests for unknown reservations
 - Main: provides the console menu and handles user input
 
-The main class relationship is:
-
-    Bookable
-        |
-        v
-    Reservation
-       / \
-      /   \
-     v     v
-    FlightReservation    HotelReservation
-       |                     |
-       v                     v
-    Flight                  Hotel
-
-
 ## UML Class Diagram
 
 The UML class diagram below shows the main Java classes, interface implementation, inheritance, and relationships used in the Travel Booking System.
