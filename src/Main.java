@@ -68,9 +68,13 @@ public class Main {
 
         System.out.println();
         System.out.println("Available Flights:");
-        for (Flight flight : results) {
+
+        for (int i = 0; i < results.size(); i++) {
+            Flight flight = results.get(i);
+
             System.out.println(
-                    flight.getFlightNumber() + " | "
+                    (i + 1) + ". "
+                            + flight.getFlightNumber() + " | "
                             + flight.getOrigin() + " -> " + flight.getDestination()
                             + " | Date: " + flight.getDate()
                             + " | " + flight.getDepartureTime()
@@ -79,6 +83,43 @@ public class Main {
                             + " | Seats: " + flight.getAvailableSeats()
             );
         }
+
+        int selectedIndex = readSelection(
+                "Select a flight to book (0 to return): ",
+                results.size()
+        );
+
+        if (selectedIndex == 0) {
+            return;
+        }
+
+        Flight selectedFlight = results.get(selectedIndex - 1);
+        bookSelectedFlight(selectedFlight, passengerCount);
+    }
+
+    private static void bookSelectedFlight(Flight flight, int passengerCount) {
+        System.out.println();
+        System.out.println("=== Book Selected Flight ===");
+        System.out.println("Selected Flight: " + flight.getFlightNumber());
+
+        String customerName = readRequiredString("Passenger name: ");
+        String contact = readRequiredString("Contact: ");
+
+        FlightReservation reservation = app.bookFlight(
+                flight.getFlightNumber(), customerName, contact, passengerCount
+        );
+
+        if (reservation == null) {
+            System.out.println(
+                    "Booking failed. Check the flight number and available seats."
+            );
+            return;
+        }
+
+        System.out.println("Flight booking successful.");
+        System.out.println(
+                "Confirmation Number: " + reservation.getConfirmationNumber()
+        );
     }
 
     private static void searchHotels() {
@@ -101,9 +142,13 @@ public class Main {
 
         System.out.println();
         System.out.println("Available Hotels:");
-        for (Hotel hotel : results) {
+
+        for (int i = 0; i < results.size(); i++) {
+            Hotel hotel = results.get(i);
+
             System.out.println(
-                    hotel.getHotelId() + " | "
+                    (i + 1) + ". "
+                            + hotel.getHotelId() + " | "
                             + hotel.getName()
                             + " | Location: " + hotel.getLocation()
                             + " | " + hotel.getCheckIn()
@@ -112,6 +157,44 @@ public class Main {
                             + " | Rooms: " + hotel.getAvailableRooms()
             );
         }
+
+        int selectedIndex = readSelection(
+                "Select a hotel to book (0 to return): ",
+                results.size()
+        );
+
+        if (selectedIndex == 0) {
+            return;
+        }
+
+        Hotel selectedHotel = results.get(selectedIndex - 1);
+        bookSelectedHotel(selectedHotel, guestCount);
+    }
+
+    private static void bookSelectedHotel(Hotel hotel, int guestCount) {
+        System.out.println();
+        System.out.println("=== Book Selected Hotel ===");
+        System.out.println("Selected Hotel: " + hotel.getHotelId()
+                + " - " + hotel.getName());
+
+        String customerName = readRequiredString("Guest name: ");
+        String contact = readRequiredString("Contact: ");
+
+        HotelReservation reservation = app.bookHotel(
+                hotel.getHotelId(), customerName, contact, guestCount
+        );
+
+        if (reservation == null) {
+            System.out.println(
+                    "Booking failed. Check the hotel ID and available rooms."
+            );
+            return;
+        }
+
+        System.out.println("Hotel booking successful.");
+        System.out.println(
+                "Confirmation Number: " + reservation.getConfirmationNumber()
+        );
     }
 
     private static void bookFlight() {
@@ -222,6 +305,36 @@ public class Main {
                 }
 
                 System.out.println("Value must be greater than 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
+    }
+
+    private static int readSelection(String prompt, int maxOption) {
+        while (true) {
+            int selection = readNonNegativeInt(prompt);
+
+            if (selection <= maxOption) {
+                return selection;
+            }
+
+            System.out.println("Please choose a valid option from 0 to " + maxOption + ".");
+        }
+    }
+
+    private static int readNonNegativeInt(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+
+            try {
+                int value = Integer.parseInt(scanner.nextLine());
+
+                if (value >= 0) {
+                    return value;
+                }
+
+                System.out.println("Value cannot be negative.");
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number.");
             }
