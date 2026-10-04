@@ -60,6 +60,13 @@ The main class relationship is:
        v                     v
     Flight                  Hotel
 
+
+## UML Class Diagram
+
+The UML class diagram below shows the main Java classes, interface implementation, inheritance, and relationships used in the Travel Booking System.
+
+![UML Class Diagram](docs/uml.svg)
+
 ## Project Structure
 
     TravelBookingSystem-Java/
@@ -77,6 +84,9 @@ The main class relationship is:
     |
     +-- test/
     |   +-- TravelAppTest.java
+    |
+    +-- docs/
+    |   +-- uml.svg
     |
     +-- .github/
     |   +-- workflows/
