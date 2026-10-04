@@ -1,0 +1,1 @@
+// Booking behavior interface.
