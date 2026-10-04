@@ -1,16 +1,19 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class TravelApp {
     private final List<Flight> flights;
     private final List<Hotel> hotels;
     private final List<Reservation> reservations;
+    private final Random random;
 
     public TravelApp() {
         flights = new ArrayList<>();
         hotels = new ArrayList<>();
         reservations = new ArrayList<>();
+        random = new Random();
         loadSampleData();
     }
 
@@ -70,6 +73,103 @@ public class TravelApp {
                                 && hotel.getCheckOut().equals(checkOut)
                                 && hotel.getAvailableRooms() >= guestCount)
                 .collect(Collectors.toList());
+    }
+
+    public Flight getFlightByNumber(String flightNumber) {
+        return flights.stream()
+                .filter(flight -> flight.getFlightNumber().equalsIgnoreCase(flightNumber))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Hotel getHotelById(String hotelId) {
+        return hotels.stream()
+                .filter(hotel -> hotel.getHotelId().equalsIgnoreCase(hotelId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public FlightReservation bookFlight(String flightNumber, String customerName,
+                                        String contact, int passengerCount) {
+        Flight flight = getFlightByNumber(flightNumber);
+
+        if (flight == null || passengerCount <= 0
+                || flight.getAvailableSeats() < passengerCount) {
+            return null;
+        }
+
+        int confirmationNumber = generateConfirmationNumber();
+        FlightReservation reservation = new FlightReservation(
+                confirmationNumber, customerName, contact, flight, passengerCount
+        );
+
+        flight.setAvailableSeats(flight.getAvailableSeats() - passengerCount);
+        reservations.add(reservation);
+        reservation.book();
+
+        return reservation;
+    }
+
+    public HotelReservation bookHotel(String hotelId, String customerName,
+                                      String contact, int guestCount) {
+        Hotel hotel = getHotelById(hotelId);
+
+        if (hotel == null || guestCount <= 0
+                || hotel.getAvailableRooms() < guestCount) {
+            return null;
+        }
+
+        int confirmationNumber = generateConfirmationNumber();
+        HotelReservation reservation = new HotelReservation(
+                confirmationNumber, customerName, contact, hotel, guestCount
+        );
+
+        hotel.setAvailableRooms(hotel.getAvailableRooms() - guestCount);
+        reservations.add(reservation);
+        reservation.book();
+
+        return reservation;
+    }
+
+    public void cancelReservation(int confirmationNumber)
+            throws ReservationNotFoundException {
+        Reservation reservation = reservations.stream()
+                .filter(r -> r.getConfirmationNumber() == confirmationNumber)
+                .findFirst()
+                .orElseThrow(() -> new ReservationNotFoundException(
+                        "Reservation not found: " + confirmationNumber
+                ));
+
+        if (reservation instanceof FlightReservation flightReservation) {
+            Flight flight = flightReservation.getFlight();
+            flight.setAvailableSeats(
+                    flight.getAvailableSeats() + flightReservation.getPassengerCount()
+            );
+        } else if (reservation instanceof HotelReservation hotelReservation) {
+            Hotel hotel = hotelReservation.getHotel();
+            hotel.setAvailableRooms(
+                    hotel.getAvailableRooms() + hotelReservation.getGuestCount()
+            );
+        }
+
+        reservation.cancel();
+        reservations.remove(reservation);
+    }
+
+    private int generateConfirmationNumber() {
+        int confirmationNumber;
+
+        do {
+            confirmationNumber = 100000 + random.nextInt(900000);
+        } while (isConfirmationNumberUsed(confirmationNumber));
+
+        return confirmationNumber;
+    }
+
+    private boolean isConfirmationNumberUsed(int confirmationNumber) {
+        return reservations.stream()
+                .anyMatch(reservation ->
+                        reservation.getConfirmationNumber() == confirmationNumber);
     }
 
     public List<Flight> getFlights() {
