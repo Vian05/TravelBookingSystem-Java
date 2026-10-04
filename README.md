@@ -1,6 +1,6 @@
 # Travel Booking System
 
-A console-based travel booking system developed in Java for the COSC6047 Introduction to Programming for Business assignment.
+A console-based travel booking system developed in Java for a team assignment in the Introduction to Programming for Business course.
 
 The system provides basic flight and hotel booking features. Users can search available options, select an option from the search results, make a reservation, view reservations, and cancel a reservation.
 
